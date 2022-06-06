@@ -23,26 +23,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
 
 // wasm-stub:/Users/aron/Code/brotli-compress/node_modules/brotli-wasm/pkg.bundler/brotli_wasm_bg.wasm
 var init_brotli_wasm_bg = __esm({
@@ -2218,12 +2198,8 @@ var require_buffer = __commonJS({
 // src/index.ts
 var brotliPromise = __toESM(require_index_browser());
 var import_buffer = __toESM(require_buffer());
-var compress3 = (input) => __async(void 0, null, function* () {
-  return (yield brotliPromise).compress(import_buffer.Buffer.from(input));
-});
-var decompress3 = (input) => __async(void 0, null, function* () {
-  return import_buffer.Buffer.from((yield brotliPromise).decompress(input));
-});
+var compress3 = async (input) => (await brotliPromise).compress(import_buffer.Buffer.from(input));
+var decompress3 = async (input) => import_buffer.Buffer.from((await brotliPromise).decompress(input));
 export {
   compress3 as compress,
   decompress3 as decompress

@@ -2,5 +2,5 @@ dist
 node_modules
 .DS_Store
 index.js
-src/index.test.js
 .idea
+index.mjs

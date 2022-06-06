@@ -59,6 +59,7 @@ build({
   entryPoints: ['src/index.ts'],
   bundle: true,
   format: 'cjs',
+  target: 'es2020',
   outfile: 'index.js',
   plugins: [wasmPlugin],
 }).catch((e) => {
@@ -69,6 +70,7 @@ build({
 build({
   entryPoints: ['src/index.ts'],
   bundle: true,
+  target: 'es2020',
   format: 'esm',
   outfile: 'index.mjs',
   plugins: [wasmPlugin],
