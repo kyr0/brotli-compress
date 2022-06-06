@@ -1,3 +1,5 @@
+import { build } from 'esbuild'
+
 let wasmPlugin = {
   name: 'wasm',
   setup(build) {
@@ -53,14 +55,24 @@ let wasmPlugin = {
   },
 }
 
-require('esbuild')
-  .build({
-    entryPoints: ['src/index.ts'],
-    bundle: true,
-    outfile: 'index.js',
-    plugins: [wasmPlugin],
-  })
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
+build({
+  entryPoints: ['src/index.ts'],
+  bundle: true,
+  format: 'cjs',
+  outfile: 'index.js',
+  plugins: [wasmPlugin],
+}).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
+
+build({
+  entryPoints: ['src/index.ts'],
+  bundle: true,
+  format: 'esm',
+  outfile: 'index.mjs',
+  plugins: [wasmPlugin],
+}).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
