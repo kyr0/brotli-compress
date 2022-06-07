@@ -1,27 +1,31 @@
-# base-unicode
+# brotli-compress
 
-Transcodes `string` and `Uint8Array` (binary) blob data to and from Unicode.
-This algorithm allows for character compression as two bytes are usually represented
-by one Unicode character in the alphabet, base-unicode uses.
+This package is a re-packaging of `brotli-wasm` that works consistently
+in Node.js and Browser environments. The WASM module has been bundled in
+and inlined as base64 encoded binary data; therfore it doesn't need to be
+loaded from a separate file. This solves the following issue with `wasm-pack`:
 
-base-unicode therefore allows for a lossless conversion of binary data to and from
-Unicode. This is useful for storing binary data in a database, for example but
-also for shortening binary data for a text representation that can be copy-pasted.
+- https://github.com/rustwasm/wasm-pack/issues/1106
 
-This again allows e.g. for sharing binary and text data in a character compressed
-form that can be easily copied and pasted, for example as a parameter in a URL or
-even via twitter.
+Furthermore, the build script used in this package bundles in different
+output variants: CommonJS and ESM. On top of this, the library uses the
+`buffer` package internally to polyfill the missing implementation in
+Browser environments.
+
+This makes the package easier to use with other bundlers like Vite,
+Rollup, Webpack, etc. and leads to a seamless integration e.g. into
+Gatsby and Next.js projects.
 
 ## Setup
 
 As a package for development (Node.js, Browsers):
 
 ```bash
-  yarn add base-unicode
+  yarn add brotli-compress
 
   # or
 
-  npm i base-unicode
+  npm i brotli-compress
 ```
 
 ## Usage
@@ -29,34 +33,36 @@ As a package for development (Node.js, Browsers):
 The usage in a Node.js or Browser environment is trivial:
 
 ```ts
-import { encode, decodeToString, decodeToUint8Array } from 'base-unicode'
+import { compress, decompress } from 'brotli-compress'
 
-// encoding + decoding strings
-const encoded = encode('Hello, world!') // 1劒碶翚禼誎藝矚h
-const decoded = decodeToString(encoded) // Hello, world!
-
-//encoding + decoding binary data
-const input = new Uint8Array([0xb, 0xa, 0xb, 0xe]) // a.k.a. [ 11, 10, 11, 14 ]
-
-// you can of course use File, Blob and Buffer as well
-const encodedBinary = encode(input) // 0A坘存
-const decodedBinary = decodeToUint8Array(encodedBinary) // [ 11, 10, 11, 14 ]
+const oneBlockInput = 'Hello🤖!'
+const compressed = await compress(oneBlockInput)
+const decompressed = await decompress(compressed)
 ```
+
+## Options
+
+Compress comes with an options object as a second parameter:
+
+```ts
+const compressed = await compress('foobar', { quality: 12 })
+```
+
+The only option known to me at the moment is `quality`.
 
 ## Limitations
 
-The alphabet of `base-unicode` is `21091` characters long. It has been carefully
-selected to be supported by the majority of system fonts. The default base-unicode
-alphabet consists of the following Unicode character ranges (always upper- and lower-case included):
-a-z, α-ω, а-я 一-龯
+I'm planning to add Stream compression as well and add all
+the unit tests of the original package.
 
-To make sure that the alphabet is URL-safe and doesn't run into invisible character issues,
-all non-printable control characters and none-URL-safe characters are excluded.
+## Roadmap
 
-However, some fonts don't support all of these characters. To check if your
-system supports copying and pasting text that has been encoded with `base-unicde`,
-you can simply check the ALPHABET file. If you can spot one character that shows
-as a non-renderable square, this algorithm doesn't work on your system.
+It might be wise to remove the `buffer` library and replace
+it with TextEncoder and TextDecoder in browser environments.
+
+## Build
+
+yarn build
 
 ## Test
 

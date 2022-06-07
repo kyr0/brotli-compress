@@ -1,5 +1,4 @@
 import { build } from 'esbuild'
-
 let wasmPlugin = {
   name: 'wasm',
   setup(build) {
@@ -73,6 +72,7 @@ build({
   target: 'es2020',
   format: 'esm',
   outfile: 'index.mjs',
+  //
   plugins: [wasmPlugin],
 }).catch((e) => {
   console.error(e)

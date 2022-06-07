@@ -1,4 +1,5 @@
-import { compress, decompress } from '.'
+// @ts-ignore
+import { compress, decompress } from '../index'
 
 it('Compresses and decompresses a string', async () => {
   const oneBlockInput = 'Hello🤖!'
