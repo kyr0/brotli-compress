@@ -1,15 +1,20 @@
-import { Buffer } from 'buffer'
 // @ts-ignore
 import init from '../node_modules/brotli-wasm/pkg.bundler/brotli_wasm_bg.wasm'
 
-export const compress = async (input: string | Uint8Array | Buffer, options: any = {}) => {
-  await getWasm()
-  return compressBrotli(Buffer.from(input), options)
+export interface IBrotliCompressOptions {
+  quality?: number
+  customDictionary?: Int8Array
 }
 
-export const decompress = async (input: Uint8Array): Promise<Buffer> => {
+// best compression level by default (11)
+export const compress = async (input: Uint8Array, options: IBrotliCompressOptions = { quality: 11 }) => {
   await getWasm()
-  return Buffer.from(decompressBrotli(input))
+  return compressBrotli(input, options)
+}
+
+export const decompress = async (input: Uint8Array): Promise<Uint8Array> => {
+  await getWasm()
+  return decompressBrotli(input)
 }
 
 interface BrotliWasm {

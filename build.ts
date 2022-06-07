@@ -54,10 +54,13 @@ let wasmPlugin = {
   },
 }
 
+// WASM compress + decompress
+
 build({
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/wasm.ts'],
   bundle: true,
   format: 'cjs',
+  minify: true,
   target: 'es2020',
   outfile: 'index.js',
   plugins: [wasmPlugin],
@@ -67,11 +70,40 @@ build({
 })
 
 build({
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/wasm.ts'],
   bundle: true,
   target: 'es2020',
   format: 'esm',
+  minify: true,
   outfile: 'index.mjs',
+  plugins: [wasmPlugin],
+}).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
+
+// JS decompress
+
+build({
+  entryPoints: ['src/js.ts'],
+  bundle: true,
+  format: 'cjs',
+  target: 'es2020',
+  minify: true,
+  outfile: 'js.js',
+  plugins: [wasmPlugin],
+}).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
+
+build({
+  entryPoints: ['src/js.ts'],
+  bundle: true,
+  target: 'es2020',
+  minify: true,
+  format: 'esm',
+  outfile: 'js.mjs',
   //
   plugins: [wasmPlugin],
 }).catch((e) => {
