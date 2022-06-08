@@ -12,6 +12,14 @@ All in all, this package is the Brotli "fire and forget" solution that should
 work in all JavaScript environments, with all bundlers and ecosystems, including
 Vite, Rollup, Webpack, Gatsby and Next.js projects as well as Node.js.
 
+This library can yield stellar compression rates at byte-level. e.g. 322% in our unit test case:
+
+<img src="jest_results.png" />
+
+If you're looking for even crazier compression rates at "character level", take a look at
+my novel algorithm, [`brotli-unicode`](https://github.com/kyr0/brotli-unicode), where the raw Brotli output binary is encoded using
+a subset of the Unicode BMP-1 alphabet. It leads to character level compression rates of 500%+.
+
 ## Setup
 
 As a package for development (Node.js, Browsers):
