@@ -34,10 +34,10 @@ import { compress, decompress } from 'brotli-compress'
 
 const oneBlockInput = 'Hello🤖!'
 
-// it takes a Int8Array and returns a Int8Array
+// it takes a Uint8Array and returns a Uint8Array
 const compressed = await compress(oneBlockInput)
 
-// it takes a Int8Array and returns a Int8Array
+// it takes a Uint8Array and returns a Uint8Array
 const decompressed = await decompress(compressed)
 ```
 

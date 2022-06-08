@@ -3,6 +3,8 @@
    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
 */
 
+import { IBrotliDecompressOptions, mapDecompressOptions } from './common'
+
 /**
  * @typedef {Object} Options
  * @property {?Int8Array} customDictionary
@@ -2359,26 +2361,8 @@ let makeBrotliDecode = () => {
   return decode
 }
 
-export interface IBrotliDecompressOptions {
-  customDictionary?: Uint8Array
-}
-
-const mapOptions = (options: IBrotliDecompressOptions): IBrotliDecompressOptions => {
-  if (!options) {
-    return options
-  }
-
-  const optionsMapped: IBrotliDecompressOptions = {}
-
-  if (options.customDictionary) {
-    optionsMapped.customDictionary = new Uint8Array(options.customDictionary)
-  }
-
-  return optionsMapped
-}
-
 /**
  * @type {function(!Uint8Array, Options=):!Uint8Array}
  */
 export let decompress = (input: Uint8Array, options: IBrotliDecompressOptions): Uint8Array =>
-  new Uint8Array(makeBrotliDecode()(new Int8Array(input), mapOptions(options)))
+  new Uint8Array(makeBrotliDecode()(new Int8Array(input), mapDecompressOptions(options)))

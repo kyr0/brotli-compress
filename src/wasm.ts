@@ -1,10 +1,6 @@
 // @ts-ignore
 import init from '../node_modules/brotli-wasm/pkg.bundler/brotli_wasm_bg.wasm'
-
-export interface IBrotliCompressOptions {
-  quality?: number
-  customDictionary?: Int8Array
-}
+import { IBrotliCompressOptions } from './common'
 
 // best compression level by default (11)
 export const compress = async (input: Uint8Array, options: IBrotliCompressOptions = { quality: 11 }) => {
