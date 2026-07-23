@@ -41,13 +41,15 @@ The usage in a Node.js or Browser environment is trivial:
 // import size (uncompressed, but minified) / WASM version / max performance: 1.8M
 import { compress, decompress } from 'brotli-compress'
 
+const textEncoder = new TextEncoder();
 const oneBlockInput = 'Hello🤖!'
 
 // it takes a Uint8Array and returns a Uint8Array
-const compressed = await compress(oneBlockInput)
+const compressed = await compress(textEncoder.encode(oneBlockInput))
 
 // it takes a Uint8Array and returns a Uint8Array
 const decompressed = await decompress(compressed)
+const decompressedString = new TextDecoder().decode(decompressed)
 ```
 
 Please note that the WASM version comes with a whopping size of (minified)
@@ -55,6 +57,43 @@ Please note that the WASM version comes with a whopping size of (minified)
 
 If you prefer maximum performance and memory efficiency over small bundle size,
 choose the WASM variant. Also, if you need compression, use the WASM version.
+
+### External WASM variant (small JS bundle)
+
+If the inlined 1.8MiB payload is a problem (e.g. "module too large" bundler
+warnings), use the external variant instead. It is the same WASM build with the
+same API, but the `.wasm` binary is referenced as a separate file instead of
+being inlined — bundlers like Vite/Rollup emit it as a regular asset:
+
+```ts
+// import size (uncompressed, but minified): ~13K + separate 1MiB .wasm asset
+import { compress, decompress } from 'brotli-compress/external'
+```
+
+This variant is ESM-only (there is no CommonJS build of it). With a bundler
+(Vite, Rollup, webpack), just use the import above — the `.wasm` file is
+emitted as a separate asset automatically. It also works directly in plain
+Node.js ESM (the `.wasm` file is read from disk):
+
+```js
+// example.mjs
+import { compress, decompress } from 'brotli-compress/external'
+
+const compressed = await compress(new TextEncoder().encode('Hello🤖!'))
+const decompressed = new TextDecoder().decode(await decompress(compressed))
+console.log(decompressed) // Hello🤖!
+```
+
+```sh
+node example.mjs
+```
+
+If you host the `.wasm` file yourself (e.g. on a CDN), you can point any
+variant at it with the `wasmFileUrl` option:
+
+```ts
+const compressed = await compress(input, { wasmFileUrl: 'https://example.com/brotli_wasm_bg.wasm' })
+```
 
 ## Usage of the pure JS variant
 
@@ -137,6 +176,8 @@ encodes with the default window, so dictionaries up to ~4 MiB are fully usable).
 Custom dictionary support is provided by
 [`brotli-wasm-custom-dictionary`](https://github.com/kyr0/brotli-wasm), a fork of
 `brotli-wasm` with dictionary support for compression and decompression.
+The external WASM variant (`brotli-compress/external`) exposes the exact same
+dictionary-capable API; only the way the `.wasm` binary is loaded differs.
 
 Additionally, a handwritten pure-JS decoder is exposed as a separate entry point
 (it supports custom dictionaries for decompression as well):

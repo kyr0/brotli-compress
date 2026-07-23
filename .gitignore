@@ -8,3 +8,5 @@ js.js
 js.mjs
 js.cjs
 index.cjs
+brotli_wasm_bg.wasm
+index.external.mjs

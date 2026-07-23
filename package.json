@@ -1,6 +1,6 @@
 {
   "name": "brotli-compress",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "WASM based, asynchronous Brotli compression and decompression package that works in browsers and Node.js; CommonJS and ESM",
   "keywords": [
     "brotli",
@@ -37,6 +37,11 @@
       "import": "./js.mjs",
       "require": "./js.cjs"
     },
+    "./external": {
+      "types": "./dist/index.d.ts",
+      "import": "./index.external.mjs"
+    },
+    "./brotli_wasm_bg.wasm": "./brotli_wasm_bg.wasm",
     "./index.js": "./index.cjs",
     "./index.mjs": "./index.mjs",
     "./index.cjs": "./index.cjs",

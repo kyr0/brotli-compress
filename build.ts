@@ -1,6 +1,6 @@
 import { build } from 'esbuild'
 import { join, isAbsolute } from 'node:path'
-import { readFile } from 'node:fs/promises'
+import { readFile, copyFile } from 'node:fs/promises'
 
 let wasmPlugin = {
   name: 'wasm',
@@ -77,6 +77,56 @@ build({
   outfile: 'index.cjs',
   plugins: [wasmPlugin],
 }).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
+
+// WASM compress + decompress, external wasm variant (ESM only):
+// the .wasm binary is NOT inlined, but referenced as a separate file via
+// `new URL('./brotli_wasm_bg.wasm', import.meta.url)`, which bundlers like
+// Vite/Rollup emit as a separate asset. This keeps the JS bundle small
+// (no 1.8 MB inlined base64 payload).
+
+let externalWasmPlugin = {
+  name: 'wasm-external',
+  setup(build) {
+    build.onResolve({ filter: /\.wasm$/ }, () => ({
+      path: 'brotli_wasm_bg.wasm',
+      namespace: 'wasm-external',
+    }))
+    build.onLoad({ filter: /.*/, namespace: 'wasm-external' }, () => ({
+      // In Node.js, import.meta.url is a file: URL and undici's fetch()
+      // cannot load those, so read the binary from disk instead. In the
+      // browser the URL is http(s): and passed through, so bundlers like
+      // Vite can emit the .wasm as a regular asset. The fs import uses a
+      // computed specifier so browser bundlers don't try to resolve it.
+      contents: `const url = new URL('./brotli_wasm_bg.wasm', import.meta.url)
+        const fsPromises = 'node:fs/promises'
+        export default url.protocol === 'file:'
+          ? (await import(fsPromises)).readFile(url).then((b) => new Uint8Array(b))
+          : url`,
+    }))
+  },
+}
+
+build({
+  entryPoints: ['src/wasm.ts'],
+  bundle: true,
+  target: 'es2022',
+  format: 'esm',
+  minify: true,
+  outfile: 'index.external.mjs',
+  plugins: [externalWasmPlugin],
+}).catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
+
+// ship the wasm binary next to the external bundle
+copyFile(
+  'node_modules/brotli-wasm-custom-dictionary/pkg.web/brotli_wasm_bg.wasm',
+  'brotli_wasm_bg.wasm',
+).catch((e) => {
   console.error(e)
   process.exit(1)
 })
