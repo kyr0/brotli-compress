@@ -33,6 +33,27 @@ As a package for development (Node.js, Browsers):
   npm i brotli-compress
 ```
 
+## Which variant should I use?
+
+The package ships three entry points; all of them work in Node.js and in the
+browser, and all support custom dictionaries:
+
+| Import path | Engine | Compress | Decompress | Size (minified) |
+|---|---|---|---|---|
+| `brotli-compress` | WASM | one-shot + streaming | one-shot + streaming | ~1.8 MB (wasm inlined) |
+| `brotli-compress/external` | WASM | one-shot + streaming | one-shot + streaming | ~13 KB + separate 1 MB `.wasm` asset |
+| `brotli-compress/js` | pure JS | — | one-shot only, synchronous | ~152 KB |
+
+- Use `brotli-compress` for maximum performance with zero configuration — the
+  WASM binary is base64-inlined, so it just works everywhere (CJS + ESM).
+- Use `brotli-compress/external` when bundle size matters (e.g. to avoid
+  "module too large" bundler warnings) — the `.wasm` file is emitted as a
+  separate asset by your bundler (ESM only).
+- Use `brotli-compress/js` when you only need decompression and want the
+  smallest possible download.
+
+Both, CommonJS and ESM module formats, are provided (except where noted).
+
 ## Usage of the WASM variant
 
 The usage in a Node.js or Browser environment is trivial:
@@ -188,10 +209,46 @@ import { decompress } from 'brotli-compress/js'
 const decompressed = decompress(compressed, { customDictionary }) // synchronous
 ```
 
-## Limitations
+## Streaming
 
-There is no streaming compression/decompression yet. It can be simply done by exposing the API from the WASM implementation.
-If you need that, pls. ping via Issue.
+Streaming compression and decompression are available via `createCompressStream`
+and `createDecompressStream`. Both accept the same options as their one-shot
+counterparts (`quality`, `customDictionary`).
+
+Feed input in chunks; each call returns `{ code, buf, input_offset }`. When the
+output buffer is too small, `code` is `NeedsMoreOutput` and `input_offset` tells
+you how much of the chunk was consumed — re-feed the rest. Finalize compression
+by calling `compress(null, outputSize)` until `ResultSuccess`:
+
+```ts
+import { createCompressStream, createDecompressStream, BrotliStreamResultCode } from 'brotli-compress'
+
+const stream = await createCompressStream({ quality: 11 })
+const chunks = []
+
+for (const inputChunk of inputChunks) {
+  let offset = 0
+  while (offset < inputChunk.byteLength) {
+    const res = stream.compress(inputChunk.subarray(offset), 16384)
+    chunks.push(res.buf)
+    offset += res.code === BrotliStreamResultCode.NeedsMoreOutput
+      ? res.input_offset
+      : inputChunk.byteLength
+  }
+}
+
+for (;;) {
+  const res = stream.compress(null, 16384) // finish
+  chunks.push(res.buf)
+  if (res.code === BrotliStreamResultCode.ResultSuccess) break
+}
+stream.free()
+```
+
+Decompression works the same way: feed compressed chunks via
+`stream.decompress(chunk, outputSize)` until `ResultSuccess`. The streams are
+synchronous; the `create*Stream` factories are only async because the WASM
+module has to be initialized once.
 
 ## Build
 
