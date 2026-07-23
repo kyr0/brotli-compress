@@ -1,6 +1,6 @@
 {
   "name": "brotli-compress",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "WASM based, asynchronous Brotli compression and decompression package that works in browsers and Node.js; CommonJS and ESM",
   "keywords": [
     "brotli",
@@ -76,5 +76,8 @@
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "picomatch": "^2.3.2"
   }
 }

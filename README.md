@@ -31,6 +31,10 @@ As a package for development (Node.js, Browsers):
   # or
 
   npm i brotli-compress
+
+  # or
+
+  bun add brotli-compress
 ```
 
 ## Which variant should I use?
@@ -252,11 +256,11 @@ module has to be initialized once.
 
 ## Build
 
-    yarn build
+    bun build
 
 ## Test
 
-    yarn test
+    bun test
 
 ## Licensing
 
