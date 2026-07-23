@@ -38,3 +38,15 @@ it('Decompresses with the pure JS variant as documented in the README', async ()
 
   expect(new TextDecoder().decode(decompressed)).toStrictEqual(oneBlockInput)
 })
+
+// the API takes Uint8Array input only (see @thdoan's issue) — fail loudly
+// instead of silently compressing garbage (see @lawruble13's repro, which
+// passed a plain object)
+it('Fails loudly when called with a non-Uint8Array input', async () => {
+  // @ts-ignore
+  await expect(compress(oneBlockInput)).rejects.toThrow(TypeError)
+  // @ts-ignore
+  await expect(compress({ foo: 'bar' })).rejects.toThrow(TypeError)
+  // @ts-ignore
+  await expect(decompress('not binary')).rejects.toThrow(TypeError)
+})

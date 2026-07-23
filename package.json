@@ -1,6 +1,6 @@
 {
   "name": "brotli-compress",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "WASM based, asynchronous Brotli compression and decompression package that works in browsers and Node.js; CommonJS and ESM",
   "keywords": [
     "brotli",
@@ -20,7 +20,9 @@
     "postbuild": "tsc",
     "deploy": "npm publish",
     "pretest": "npm run build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prebench": "npm run build",
+    "bench": "node --expose-gc bench/memory.mjs"
   },
   "type": "module",
   "main": "./index.cjs",
