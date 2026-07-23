@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2015",
+    "module": "ESNext",
+    "target": "ESNext",
     "declaration": true,
+    "moduleResolution": "Bundler",
+    "strict": false,
+    "rootDir": "src",
     "outDir": "dist",
     "emitDeclarationOnly": true,
     "allowJs": true,
     "lib": [
-      "es2017",
-      "dom"
+      "dom",
     ]
   },
   "exclude": [
-    "node_modules",
+    "node_modules/**/*",
     "**/*.test.ts"
   ],
   "include": [

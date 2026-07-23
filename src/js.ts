@@ -3,7 +3,7 @@
    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
 */
 
-import { IBrotliDecompressOptions, mapDecompressOptions } from './common'
+import { IBrotliDecompressOptions, mapDecompressOptions } from './common.js'
 
 /**
  * @typedef {Object} Options
@@ -1082,7 +1082,7 @@ let makeBrotliDecode = () => {
     while (address >= s.cdChunkOffsets[index + 1]) {
       index++
     }
-    if (s.cdTotalSize > address + length) {
+    if (s.cdTotalSize < address + length) {
       throw 'Invalid backward reference'
     }
     s.distRbIdx = (s.distRbIdx + 1) & 0x3

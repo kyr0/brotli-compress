@@ -1,9 +1,6 @@
 {
   "name": "brotli-compress",
-  "version": "1.3.3",
-  "main": "index.js",
-  "module": "index.mjs",
-  "typings": "dist/index.d.ts",
+  "version": "2.0.0",
   "description": "WASM based, asynchronous Brotli compression and decompression package that works in browsers and Node.js; CommonJS and ESM",
   "keywords": [
     "brotli",
@@ -16,13 +13,37 @@
     "browser",
     "Node.js"
   ],
+  "sideEffects": false,
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "ts-node build.ts",
+    "build": "tsx ./build.ts",
     "postbuild": "tsc",
     "deploy": "npm publish",
-    "pretest": "yarn build",
-    "test": "jest"
+    "pretest": "npm run build",
+    "test": "vitest run"
+  },
+  "type": "module",
+  "main": "./index.cjs",
+  "module": "./index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    },
+    "./js": {
+      "types": "./dist/js.d.ts",
+      "import": "./js.mjs",
+      "require": "./js.cjs"
+    },
+    "./index.js": "./index.cjs",
+    "./index.mjs": "./index.mjs",
+    "./index.cjs": "./index.cjs",
+    "./js.js": "./js.cjs",
+    "./js.mjs": "./js.mjs",
+    "./js.cjs": "./js.cjs",
+    "./package.json": "./package.json"
   },
   "repository": {
     "type": "git",
@@ -35,14 +56,18 @@
   },
   "homepage": "https://github.com/kyr0/brotli-compress#readme",
   "dependencies": {
-    "@types/node": "^17.0.40",
-    "brotli-wasm": "1.2.0"
+    "@types/node": "^26.1.1",
+    "brotli-wasm-custom-dictionary": "^3.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.5.1",
-    "esbuild": "^0.14.3",
-    "jest": "^27.5.1",
-    "ts-jest": "^27.1.3",
-    "typescript": "^4.6.2"
+    "@vitest/browser": "^4.1.10",
+    "@vitest/browser-playwright": "^4.1.10",
+    "buffer": "^6.0.3",
+    "esbuild": "^0.28.1",
+    "pkgroll": "^2.27.1",
+    "playwright": "^1.61.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   }
 }

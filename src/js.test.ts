@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer'
+import { expect, it } from 'vitest'
 
 // @ts-ignore
 import { compress } from '../index'

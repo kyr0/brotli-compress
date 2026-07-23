@@ -1,6 +1,7 @@
 # brotli-compress
 
-This package packages `brotli-wasm`, minifies and inlines it, so that it works consistently
+This package packages `brotli-wasm-custom-dictionary` (a `brotli-wasm` fork with
+custom dictionary support), minifies and inlines it, so that it works consistently
 in Node.js and Browser environments. This solves [several issues](https://github.com/rustwasm/wasm-pack/issues/1106) of using `brotli-wasm` directly.
 
 Furthermore, this package comes with two module variants: CommonJS and ESM.
@@ -112,21 +113,38 @@ In 99.9% of the cases, you don't want to change this value.
 
 ### Custom dictionary
 
-The relevant options here is `customDictionary`. You can set this to an Uint8Array string
-of tokens which should be part of the `a priori` known dictionary. This can be useful
-if you have power over both, the sender and the receiver part and if you know exactly
-which tokens will be used alot in the input. For example, if you know that you'll
-be compressing text, encoded as UTF16/UCS-2 and you know that the content is TypeScript code,
-you could include the keywords of the TypeScript language in the custom dictionary.
-
-Please mind, that you need to set the same value for decoding as well.
+Both, `compress()` and `decompress()` support a custom dictionary via the
+`customDictionary` option (a `Uint8Array` of tokens that are `a priori` known to
+appear in the input). This can dramatically shrink the output for small, similar
+payloads — e.g. if you know that you'll be compressing TypeScript source code, you
+could include the keywords of the TypeScript language in the custom dictionary:
 
 ```ts
-// with this configuration, "let" must not be encoded in the dictionary and carried as part of the
-// payload. The binary tree (huffman coding tree)
-const customDictionary = Buffer.from('let')
-const compressed = await compress('let foo = 123; let bar = "foo";', { customDictionary })
+const customDictionary = new Uint8Array(fs.readFileSync('dictionary.bin'))
+const compressed = await compress(input, { quality: 11, customDictionary })
 const decompressed = await decompress(compressed, { customDictionary })
+```
+
+This uses raw (LZ77) dictionary semantics, exactly like the reference C encoder's
+`BrotliEncoderAttachPreparedDictionary(..., BROTLI_SHARED_DICTIONARY_RAW, ...)`,
+i.e. the `brotli` CLI's `-D FILE` flag. The dictionary is **not** embedded in the
+compressed stream; the decoder must attach the identical dictionary, and
+decompression fails loudly without it. Data compressed by the reference CLI with
+`-D` can be decompressed here, and vice versa — note that the usable dictionary
+size is limited by the window size (at most `2^lgwin - 16` bytes; this package
+encodes with the default window, so dictionaries up to ~4 MiB are fully usable).
+
+Custom dictionary support is provided by
+[`brotli-wasm-custom-dictionary`](https://github.com/kyr0/brotli-wasm), a fork of
+`brotli-wasm` with dictionary support for compression and decompression.
+
+Additionally, a handwritten pure-JS decoder is exposed as a separate entry point
+(it supports custom dictionaries for decompression as well):
+
+```ts
+import { decompress } from 'brotli-compress/js'
+
+const decompressed = decompress(compressed, { customDictionary }) // synchronous
 ```
 
 ## Limitations

@@ -1,2 +1,2 @@
-export * from './common'
-export * from './wasm'
+export * from './common.js'
+export * from './wasm.js'

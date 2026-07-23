@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer'
+import { expect, it } from 'vitest'
 import { TEST_INPUT } from './__test__/input'
 
 // @ts-ignore

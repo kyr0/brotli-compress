@@ -1,10 +1,10 @@
 import { build } from 'esbuild'
+import { join, isAbsolute } from 'node:path'
+import { readFile } from 'node:fs/promises'
+
 let wasmPlugin = {
   name: 'wasm',
   setup(build) {
-    let path = require('path')
-    let fs = require('fs')
-
     // Resolve ".wasm" files to a path with a namespace
     build.onResolve({ filter: /\.wasm$/ }, (args) => {
       // If this is the import inside the stub module, import the
@@ -28,19 +28,18 @@ let wasmPlugin = {
         return // Ignore unresolvable paths
       }
       return {
-        path: path.isAbsolute(args.path) ? args.path : path.join(args.resolveDir, args.path),
+        path: isAbsolute(args.path) ? args.path : join(args.resolveDir, args.path),
         namespace: 'wasm-stub',
       }
     })
 
-    // Virtual modules in the "wasm-stub" namespace are filled with
-    // the JavaScript code for compiling the WebAssembly binary. The
-    // binary itself is imported from a second virtual module.
+    // Virtual modules in the "wasm-stub" namespace re-export the raw
+    // bytes of the WebAssembly binary as their default export, so the
+    // runtime can instantiate them itself. The binary itself is imported
+    // from a second virtual module.
     build.onLoad({ filter: /.*/, namespace: 'wasm-stub' }, async (args) => ({
       contents: `import wasm from ${JSON.stringify(args.path)}
-        export default (imports) =>
-          WebAssembly.instantiate(wasm, imports).then(
-            result => result.instance.exports)`,
+        export default wasm`,
     }))
 
     // Virtual modules in the "wasm-binary" namespace contain the
@@ -48,7 +47,7 @@ let wasmPlugin = {
     // built-in "binary" loader instead of manually embedding the
     // binary data inside JavaScript code ourselves.
     build.onLoad({ filter: /.*/, namespace: 'wasm-binary' }, async (args) => ({
-      contents: await fs.promises.readFile(args.path),
+      contents: await readFile(args.path),
       loader: 'binary',
     }))
   },
@@ -59,10 +58,10 @@ let wasmPlugin = {
 build({
   entryPoints: ['src/wasm.ts'],
   bundle: true,
-  format: 'cjs',
+  target: 'es2022',
+  format: 'esm',
   minify: true,
-  target: 'es2020',
-  outfile: 'index.js',
+  outfile: 'index.mjs',
   plugins: [wasmPlugin],
 }).catch((e) => {
   console.error(e)
@@ -72,10 +71,10 @@ build({
 build({
   entryPoints: ['src/wasm.ts'],
   bundle: true,
-  target: 'es2020',
-  format: 'esm',
+  target: 'es2022',
+  format: 'cjs',
   minify: true,
-  outfile: 'index.mjs',
+  outfile: 'index.cjs',
   plugins: [wasmPlugin],
 }).catch((e) => {
   console.error(e)
@@ -87,10 +86,11 @@ build({
 build({
   entryPoints: ['src/js.ts'],
   bundle: true,
-  format: 'cjs',
-  target: 'es2020',
+  target: 'es2022',
   minify: true,
-  outfile: 'js.js',
+  format: 'esm',
+  outfile: 'js.mjs',
+  //
   plugins: [wasmPlugin],
 }).catch((e) => {
   console.error(e)
@@ -100,10 +100,10 @@ build({
 build({
   entryPoints: ['src/js.ts'],
   bundle: true,
-  target: 'es2020',
+  target: 'es2022',
   minify: true,
-  format: 'esm',
-  outfile: 'js.mjs',
+  format: 'cjs',
+  outfile: 'js.cjs',
   //
   plugins: [wasmPlugin],
 }).catch((e) => {

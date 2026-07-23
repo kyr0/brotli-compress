@@ -6,7 +6,9 @@ node_modules/
 .gitignore
 .editorconfig
 .prettierrc
-jest.config.js
+vitest.config.ts
 tsconfig.json
 .github
-dist/index.test.d.ts
+bun.lockb
+yarn.lock
+dist/*.test.d.ts
