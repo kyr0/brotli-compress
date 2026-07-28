@@ -1,0 +1,351 @@
+{
+  "generatedBy": "scripts/generate-fixtures.ts (run via `npm run fixtures:generate`)",
+  "encoder": "brotli-compress WASM (../index.mjs)",
+  "note": "Recompressing the named source with the listed config must reproduce these exact bytes. See src/fixtures.test.ts.",
+  "configs": [
+    {
+      "file": "empty-q1.br",
+      "input": "empty",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 0,
+      "compressedBytes": 1
+    },
+    {
+      "file": "empty-q5.br",
+      "input": "empty",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 0,
+      "compressedBytes": 1
+    },
+    {
+      "file": "empty-q9.br",
+      "input": "empty",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 0,
+      "compressedBytes": 1
+    },
+    {
+      "file": "empty-q11.br",
+      "input": "empty",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 0,
+      "compressedBytes": 1
+    },
+    {
+      "file": "single-q1.br",
+      "input": "single",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 1,
+      "compressedBytes": 5
+    },
+    {
+      "file": "single-q5.br",
+      "input": "single",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 1,
+      "compressedBytes": 5
+    },
+    {
+      "file": "single-q9.br",
+      "input": "single",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 1,
+      "compressedBytes": 5
+    },
+    {
+      "file": "single-q11.br",
+      "input": "single",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 1,
+      "compressedBytes": 5
+    },
+    {
+      "file": "hello-q1.br",
+      "input": "hello",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 10,
+      "compressedBytes": 14
+    },
+    {
+      "file": "hello-q5.br",
+      "input": "hello",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 10,
+      "compressedBytes": 14
+    },
+    {
+      "file": "hello-q9.br",
+      "input": "hello",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 10,
+      "compressedBytes": 14
+    },
+    {
+      "file": "hello-q11.br",
+      "input": "hello",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 10,
+      "compressedBytes": 14
+    },
+    {
+      "file": "text-en-q1.br",
+      "input": "text-en",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 334,
+      "compressedBytes": 226
+    },
+    {
+      "file": "text-en-q5.br",
+      "input": "text-en",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 334,
+      "compressedBytes": 217
+    },
+    {
+      "file": "text-en-q9.br",
+      "input": "text-en",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 334,
+      "compressedBytes": 216
+    },
+    {
+      "file": "text-en-q11.br",
+      "input": "text-en",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 334,
+      "compressedBytes": 214
+    },
+    {
+      "file": "json-q1.br",
+      "input": "json",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 347,
+      "compressedBytes": 216
+    },
+    {
+      "file": "json-q5.br",
+      "input": "json",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 347,
+      "compressedBytes": 176
+    },
+    {
+      "file": "json-q9.br",
+      "input": "json",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 347,
+      "compressedBytes": 171
+    },
+    {
+      "file": "json-q11.br",
+      "input": "json",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 347,
+      "compressedBytes": 164
+    },
+    {
+      "file": "html-q1.br",
+      "input": "html",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 190,
+      "compressedBytes": 153
+    },
+    {
+      "file": "html-q5.br",
+      "input": "html",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 190,
+      "compressedBytes": 115
+    },
+    {
+      "file": "html-q9.br",
+      "input": "html",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 190,
+      "compressedBytes": 115
+    },
+    {
+      "file": "html-q11.br",
+      "input": "html",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 190,
+      "compressedBytes": 95
+    },
+    {
+      "file": "ts-code-q1.br",
+      "input": "ts-code",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 183,
+      "compressedBytes": 148
+    },
+    {
+      "file": "ts-code-q5.br",
+      "input": "ts-code",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 183,
+      "compressedBytes": 114
+    },
+    {
+      "file": "ts-code-q9.br",
+      "input": "ts-code",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 183,
+      "compressedBytes": 114
+    },
+    {
+      "file": "ts-code-q11.br",
+      "input": "ts-code",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 183,
+      "compressedBytes": 120
+    },
+    {
+      "file": "assembly-q1.br",
+      "input": "assembly",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 766,
+      "compressedBytes": 301
+    },
+    {
+      "file": "assembly-q5.br",
+      "input": "assembly",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 766,
+      "compressedBytes": 243
+    },
+    {
+      "file": "assembly-q9.br",
+      "input": "assembly",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 766,
+      "compressedBytes": 243
+    },
+    {
+      "file": "assembly-q11.br",
+      "input": "assembly",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 766,
+      "compressedBytes": 238
+    },
+    {
+      "file": "binary-q1.br",
+      "input": "binary",
+      "quality": 1,
+      "dictionary": null,
+      "inputBytes": 512,
+      "compressedBytes": 286
+    },
+    {
+      "file": "binary-q5.br",
+      "input": "binary",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 512,
+      "compressedBytes": 275
+    },
+    {
+      "file": "binary-q9.br",
+      "input": "binary",
+      "quality": 9,
+      "dictionary": null,
+      "inputBytes": 512,
+      "compressedBytes": 261
+    },
+    {
+      "file": "binary-q11.br",
+      "input": "binary",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 512,
+      "compressedBytes": 236
+    },
+    {
+      "file": "large-repetitive-q5.br",
+      "input": "large-repetitive",
+      "quality": 5,
+      "dictionary": null,
+      "inputBytes": 11712,
+      "compressedBytes": 118
+    },
+    {
+      "file": "large-repetitive-q11.br",
+      "input": "large-repetitive",
+      "quality": 11,
+      "dictionary": null,
+      "inputBytes": 11712,
+      "compressedBytes": 120
+    },
+    {
+      "file": "ts-code-q5-d-ts-keywords.br",
+      "input": "ts-code",
+      "quality": 5,
+      "dictionary": "ts-keywords",
+      "inputBytes": 183,
+      "compressedBytes": 101
+    },
+    {
+      "file": "ts-code-q9-d-ts-keywords.br",
+      "input": "ts-code",
+      "quality": 9,
+      "dictionary": "ts-keywords",
+      "inputBytes": 183,
+      "compressedBytes": 102
+    },
+    {
+      "file": "ts-code-q11-d-ts-keywords.br",
+      "input": "ts-code",
+      "quality": 11,
+      "dictionary": "ts-keywords",
+      "inputBytes": 183,
+      "compressedBytes": 124
+    },
+    {
+      "file": "ts-code-q9-d-repeated-ts.br",
+      "input": "ts-code",
+      "quality": 9,
+      "dictionary": "repeated-ts",
+      "inputBytes": 183,
+      "compressedBytes": 101
+    },
+    {
+      "file": "ts-code-q11-d-repeated-ts.br",
+      "input": "ts-code",
+      "quality": 11,
+      "dictionary": "repeated-ts",
+      "inputBytes": 183,
+      "compressedBytes": 107
+    }
+  ]
+}

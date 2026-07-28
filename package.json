@@ -20,6 +20,7 @@
     "postbuild": "tsc && tsx ./build.types.ts",
     "verify:package": "npm run build && tsx ./scripts/verify-package.ts",
     "gate": "tsx ./scripts/release-gate/release-gate.ts",
+    "fixtures:generate": "npm run build && tsx ./scripts/generate-fixtures.ts",
     "prepack": "npm run build",
     "deploy": "npm publish",
     "prepublishOnly": "npm run gate",
