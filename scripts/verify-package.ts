@@ -76,7 +76,10 @@ console.log('esm smoke test passed')
   // - cjs-resolves-to-esm: ./external (and the .mjs subpaths) are ESM-only
   // - untyped-resolution: only reported for node10, which the package does
   //   not support (engines: node >= 18)
-  run('npx', ['--yes', 'publint'], process.cwd())
+  // lint the already-packed tarball directly. Passing the tarball makes publint
+  // inspect it instead of re-packing itself — publint's auto-pack uses
+  // `bun pack` when bun.lockb is present, which isn't available in CI.
+  run('npx', ['--yes', 'publint', tarball], process.cwd())
   run(
     'npx',
     [
