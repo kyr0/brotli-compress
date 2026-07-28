@@ -20,8 +20,7 @@ All in all, this package is the Brotli "fire and forget" solution that should
 work in all JavaScript environments, with all bundlers and ecosystems, including
 Vite, Rollup, Webpack, Gatsby and Next.js projects as well as Node.js.
 
-This library can yield stellar compression ratios at byte-level — e.g. output
-68.9% smaller than the input (a 3.22× reduction) in our unit test case:
+This library can yield stellar compression ratios at byte-level - e.g. output 68.9% smaller than the input (a 3.22x reduction) in our unit test case:
 
 <img src="jest_results.png" />
 
@@ -296,6 +295,18 @@ version, record it under "Documented behaviour changes" in SECURITY.md, then
 publish once with `npm run release` (which builds and bypasses the gate for this
 one acknowledged change). The gate then re-baselines against the newly published
 version and goes green again for subsequent releases.
+
+### Stability corpus & version sweep
+
+Two extras back the promise above:
+
+- A golden `.br` corpus in `src/__test__/fixtures/` (generated via
+  `npm run fixtures:generate`) pins compress + WASM/JS decompress output for ~40
+  configurations. `npm test` fails if any byte drifts — e.g. after bumping the
+  upstream WASM package.
+- `npm run test:e2e` installs **every released version** on npm, compresses a
+  string with it, and asserts the current build decodes the result — proving the
+  current decoder stays backward compatible with all historical releases.
 
 ## Licensing
 

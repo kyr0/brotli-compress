@@ -21,6 +21,7 @@
     "verify:package": "npm run build && tsx ./scripts/verify-package.ts",
     "gate": "tsx ./scripts/release-gate/release-gate.ts",
     "fixtures:generate": "npm run build && tsx ./scripts/generate-fixtures.ts",
+    "test:e2e": "npm run build && tsx ./scripts/e2e-releases.ts",
     "prepack": "npm run build",
     "deploy": "npm publish",
     "prepublishOnly": "npm run gate",
