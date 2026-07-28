@@ -13,7 +13,7 @@ in Node.js and Browser environments. This solves [several issues](https://github
 
 Furthermore, this package comes with two module variants: CommonJS and ESM.
 On top of this, this library comes with a copy of the original Brotli `decompress`
-implementation by Google, with an optimited API to be 1:1 compatible with
+implementation by Google, with an optimized API to be 1:1 compatible with
 the WASM variant and with TypeScript typing support.
 
 All in all, this package is the Brotli "fire and forget" solution that should
