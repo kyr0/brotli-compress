@@ -20,8 +20,9 @@ import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// current build's decoder — the thing under test
+// current build's decoders — BOTH are tested against every old version's output
 import { decompress } from '../index.mjs'
+import { decompress as jsDecompress } from '../js.mjs'
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm'
@@ -91,9 +92,12 @@ for (const v of versions) {
 
   try {
     const bytes = new Uint8Array(Buffer.from(probe.stdout.trim(), 'base64'))
-    const out = await decompress(bytes)
-    const ok = Buffer.from(out).toString('utf-8') === E2E_INPUT
-    console.log(ok ? '✓ decoded' : '✗ DECODE MISMATCH')
+    // decode with BOTH shipped decoders — the current build must decode every
+    // past release's output in WASM AND in pure JS
+    const wasmOk = Buffer.from(await decompress(bytes)).toString('utf-8') === E2E_INPUT
+    const jsOk = Buffer.from(jsDecompress(bytes)).toString('utf-8') === E2E_INPUT
+    const ok = wasmOk && jsOk
+    console.log(ok ? '✓ decoded (wasm+js)' : `✗ DECODE MISMATCH (wasm=${wasmOk} js=${jsOk})`)
     results.push({ v, status: ok ? 'ok' : 'decode-mismatch' })
     if (!ok) failed = true
   } catch (e) {

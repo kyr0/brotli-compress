@@ -22,7 +22,9 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npm test
+      # functional tests only on the matrix; fuzz/e2e/release-gate run in their
+      # own dedicated jobs (npm test locally also runs those, in order)
+      - run: npx vitest run
 
   package:
     name: Package consumer test (Node.js ${{ matrix.node }})
@@ -79,3 +81,16 @@ jobs:
       # installs every released npm version, compresses with it, then asserts
       # the current build decodes the result (backward compatibility)
       - run: npm run test:e2e
+
+  fuzz-regression:
+    name: Fuzz regression (custom-dict x qualities)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      # pins the custom-dictionary encoder panic (fuzzing_learning.md): each
+      # known-failing input is compressed at every quality in a fresh process
+      - run: npm run test:fuzz

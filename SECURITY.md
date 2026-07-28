@@ -22,6 +22,12 @@ and `/external` entry points, in both ESM and CJS). It hard-fails on:
 - any **byte drift** in a known compress/decompress configuration;
 - the upcoming test suite (re-run against the installed tarball) not passing.
 
+A **documented**, intentional behaviour change (listed in
+[`scripts/release-gate/known-drift.json`](scripts/release-gate/known-drift.json)
+and under "Documented behaviour changes" below) is reported as *acknowledged
+drift* rather than a failure — strict for everything else, with a visible audit
+trail.
+
 `npm publish` is gated via the `prepublishOnly` hook. To ship an **intentional**
 behaviour change (e.g. a correctness fix), bump the version, record it below,
 and publish once with `npm run release` (which builds and bypasses the gate for

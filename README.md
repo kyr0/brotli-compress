@@ -298,15 +298,14 @@ version and goes green again for subsequent releases.
 
 ### Stability corpus & version sweep
 
-Two extras back the promise above:
+Three extras back the promise above:
 
 - A golden `.br` corpus in `src/__test__/fixtures/` (generated via
   `npm run fixtures:generate`) pins compress + WASM/JS decompress output for ~40
   configurations. `npm test` fails if any byte drifts — e.g. after bumping the
   upstream WASM package.
-- `npm run test:e2e` installs **every released version** on npm, compresses a
-  string with it, and asserts the current build decodes the result — proving the
-  current decoder stays backward compatible with all historical releases.
+- `npm run test:fuzz` re-runs a custom-dictionary encoder fuzzing across **every quality 0-11**, each in a fresh process, so the upstream can never silently regress.
+- `npm run test:e2e` installs **every released version** on npm, compresses a string with it, and asserts the current build decodes the result - proving the current decoder stays backward compatible with all historical releases.
 
 ## Licensing
 

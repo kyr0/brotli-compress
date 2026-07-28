@@ -15,6 +15,8 @@ export default defineConfig({
         test: {
           name: 'browser (chromium)',
           include: ['src/**/*.test.ts'],
+          // fixtures.test.ts reads the .br corpus from disk (node:fs) — Node-only
+          exclude: ['src/fixtures.test.ts'],
           browser: {
             enabled: true,
             provider: playwright(),

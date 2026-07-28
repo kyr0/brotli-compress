@@ -72,6 +72,23 @@ const walkRel = (dir: string, base: string = dir): string[] => {
 }
 const sha256File = (p: string) => createHash('sha256').update(readFileSync(p)).digest('hex')
 
+/** Vector ids whose output drift vs the latest published release is INTENTIONAL
+ *  and documented (scripts/release-gate/known-drift.json + SECURITY.md
+ *  "Documented behaviour changes"). Such drift is reported as an acknowledged
+ *  change, not a failure — everything else stays strictly gated. */
+const loadKnownDrift = (): Record<string, string> => {
+  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), 'known-drift.json')
+  if (!existsSync(file)) return {}
+  try {
+    const raw = JSON.parse(readFileSync(file, 'utf-8')) as Record<string, unknown>
+    const out: Record<string, string> = {}
+    for (const [k, v] of Object.entries(raw)) if (!k.startsWith('_') && typeof v === 'string') out[k] = v
+    return out
+  } catch {
+    return {}
+  }
+}
+
 /** Pack `pkgSpec` ('.' for the upcoming local build, `name@version` for the
  *  baseline) into `dest`, returning the produced tarball path. */
 const pack = (pkgSpec: string, dest: string): string => {
@@ -205,7 +222,7 @@ interface GateReport {
       wasm: { latestSha: string; upcomingSha: string; same: boolean }
     }
     B: { removedSymbols: { entry: string; format: string; symbols: string[] }[]; addedSymbols: { entry: string; format: string; symbols: string[] }[] }
-    C: { byteDrift: { vectorId: string; format: string; latestSha: string; upcomingSha: string }[]; formatDrift: { vectorId: string; version: string; esmSha: string; cjsSha: string }[]; probeErrors: { latest: string[]; upcoming: string[] } }
+    C: { byteDrift: { vectorId: string; format: string; latestSha: string; upcomingSha: string }[]; acknowledgedDrift: { vectorId: string; format: string; reason: string }[]; formatDrift: { vectorId: string; version: string; esmSha: string; cjsSha: string }[]; probeErrors: { latest: string[]; upcoming: string[] } }
     D: { latest: { ok: boolean; summary: string }; upcoming: { ok: boolean; summary: string } }
   }
   failures: string[]
@@ -231,6 +248,7 @@ const renderMarkdown = (r: GateReport): string => {
   L.push('', '## Phase C — byte parity (known configurations)', '')
   if (r.phases.C.byteDrift.length) for (const b of r.phases.C.byteDrift) L.push(`- ❌ byte drift \`${b.vectorId}/${b.format}\``)
   else L.push('- byte drift vs latest: _(none — every known config is byte-identical)_')
+  if (r.phases.C.acknowledgedDrift?.length) L.push(`- ~ acknowledged drift (documented, allowed): ${[...new Set(r.phases.C.acknowledgedDrift.map((a) => a.vectorId))].join(', ')}`)
   if (r.phases.C.formatDrift.length) for (const f of r.phases.C.formatDrift) L.push(`- ❌ ESM/CJS divergence \`${f.vectorId}\` (${f.version})`)
   L.push('', '## Phase D — test suite re-run against each installed tarball', '')
   L.push(`- latest baseline: ${r.phases.D.latest.ok ? '✅ PASS' : '❌ FAIL'}`)
@@ -341,6 +359,8 @@ const main = async () => {
   // C: bytes — every known config must match latest; ESM must equal CJS per version
   const byteDrift: { vectorId: string; format: string; latestSha: string; upcomingSha: string }[] = []
   const formatDrift: { vectorId: string; version: string; esmSha: string; cjsSha: string }[] = []
+  const knownDrift = loadKnownDrift()
+  const acknowledgedDrift: { vectorId: string; format: string; reason: string }[] = []
   const allIds = new Set([...Object.keys(probeLatest.vectors), ...Object.keys(probeUpcoming.vectors)])
   for (const id of allIds) {
     const lat = probeLatest.vectors[id]?.formats ?? {}
@@ -352,7 +372,10 @@ const main = async () => {
         recordFail(`vector '${id}' (${fmt}) could not run: latest=${l?.error ?? 'ok'} upcoming=${u?.error ?? 'ok'}`)
         continue
       }
-      if (l.sha256 !== u.sha256) byteDrift.push({ vectorId: id, format: fmt, latestSha: l.sha256!, upcomingSha: u.sha256! })
+      if (l.sha256 !== u.sha256) {
+        if (knownDrift[id]) acknowledgedDrift.push({ vectorId: id, format: fmt, reason: knownDrift[id] })
+        else byteDrift.push({ vectorId: id, format: fmt, latestSha: l.sha256!, upcomingSha: u.sha256! })
+      }
     }
     for (const [version, probe] of [['latest', probeLatest], ['upcoming', probeUpcoming]] as const) {
       const e = probe.vectors[id]?.formats?.esm
@@ -360,6 +383,8 @@ const main = async () => {
       if (e && c && !e.error && !c.error && e.sha256 !== c.sha256) formatDrift.push({ vectorId: id, version, esmSha: e.sha256!, cjsSha: c.sha256! })
     }
   }
+  if (acknowledgedDrift.length)
+    console.log(`  ~ acknowledged drift (documented, allowed): ${[...new Set(acknowledgedDrift.map((a) => a.vectorId))].join(', ')}`)
   if (byteDrift.length) recordFail(`byte drift in ${byteDrift.length} known config(s): ${byteDrift.map((b) => `${b.vectorId}/${b.format}`).join(', ')}`)
   if (formatDrift.length) recordFail(`ESM/CJS divergence: ${formatDrift.map((f) => `${f.vectorId} (${f.version})`).join(', ')}`)
   if (probeLatest.errors.length || probeUpcoming.errors.length)
@@ -386,7 +411,7 @@ const main = async () => {
     phases: {
       A: { removedFiles, addedFiles, changedFiles, removedSubpaths, addedSubpaths, removedConditions, wasm: { ...wasm, same: wasmSame } },
       B: { removedSymbols, addedSymbols },
-      C: { byteDrift, formatDrift, probeErrors: { latest: probeLatest.errors, upcoming: probeUpcoming.errors } },
+      C: { byteDrift, acknowledgedDrift, formatDrift, probeErrors: { latest: probeLatest.errors, upcoming: probeUpcoming.errors } },
       D: { latest: suiteLatest, upcoming: suiteUpcoming },
     },
     failures,

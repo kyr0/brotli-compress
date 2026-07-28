@@ -1,0 +1,4 @@
+{
+  "_doc": "Parity vectors whose output is INTENTIONALLY allowed to differ from the latest published release. Every entry MUST be documented under SECURITY.md -> 'Documented behaviour changes'. Once such a change is published, upcoming == latest and the drift vanishes, so the entry becomes a no-op (remove it for tidiness). Anything NOT listed here stays strictly gated.",
+  "decompress/repeat-dict/js": "2.2.2 - pure-JS decoder RFC 7932 section 4 distance ring-buffer correctness fix; changes decoded output for custom-dictionary streams that reuse the last distance code. WASM decoder is unaffected. See SECURITY.md."
+}

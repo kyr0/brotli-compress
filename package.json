@@ -22,12 +22,13 @@
     "gate": "tsx ./scripts/release-gate/release-gate.ts",
     "fixtures:generate": "npm run build && tsx ./scripts/generate-fixtures.ts",
     "test:e2e": "npm run build && tsx ./scripts/e2e-releases.ts",
+    "test:fuzz": "npm run build && tsx ./scripts/fuzz-regression.ts",
     "prepack": "npm run build",
     "deploy": "npm publish",
     "prepublishOnly": "npm run gate",
     "release": "npm run build && npm publish --ignore-scripts",
     "pretest": "npm run build",
-    "test": "vitest run",
+    "test": "vitest run && tsx ./scripts/fuzz-regression.ts && tsx ./scripts/e2e-releases.ts && tsx ./scripts/release-gate/release-gate.ts",
     "prebench": "npm run build",
     "bench": "node --expose-gc bench/memory.mjs"
   },
@@ -111,7 +112,7 @@
   },
   "homepage": "https://github.com/kyr0/brotli-compress#readme",
   "dependencies": {
-    "brotli-wasm-custom-dictionary": "^3.1.0"
+    "brotli-wasm-custom-dictionary": "3.1.1"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
