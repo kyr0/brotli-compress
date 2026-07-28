@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and test (Node.js ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # deliberately a plain install on a clean checkout: this must always work
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+
+  package:
+    name: Package consumer test (Node.js ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install --no-audit --no-fund
+      # packs the tarball, installs it into a scratch project, exercises all
+      # entry points from CJS and ESM, and runs publint + attw
+      - run: npm run verify:package
+
+  release-gate:
+    name: Release parity gate (informational)
+    runs-on: ubuntu-latest
+    # Informational on PRs: surfaces behaviour/import drift vs the latest
+    # published release early, without blocking merges during an intentional,
+    # documented behaviour change. The hard enforcement is the `prepublishOnly`
+    # hook at publish time (see SECURITY.md).
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      # packs the upcoming release, downloads the latest published tarball, and
+      # proves they are import- and behaviour-identical (re-runs the test suite
+      # against both installed tarballs + asserts byte-identical output)
+      - run: npm run gate
+      - name: Upload gate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gate-report
+          path: tmp/release-gate/gate-report.md
+          if-no-files-found: ignore

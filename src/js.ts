@@ -1,4 +1,4 @@
-/* Copyright 2017 Google Inc. All Rights Reserved.
+/*! Copyright 2017 Google Inc. All Rights Reserved.
    Distributed under MIT license.
    See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
 */
@@ -1085,8 +1085,12 @@ let makeBrotliDecode = () => {
     if (s.cdTotalSize < address + length) {
       throw 'Invalid backward reference'
     }
-    s.distRbIdx = (s.distRbIdx + 1) & 0x3
-    s.rings[s.distRbIdx] = s.distance
+    // RFC 7932 §4: the distance ring buffer is updated for compound
+    // dictionary references only when the distance code is non-zero.
+    if (s.distanceCode > 0) {
+      s.distRbIdx = (s.distRbIdx + 1) & 0x3
+      s.rings[s.distRbIdx] = s.distance
+    }
     s.metaBlockLength -= length
     s.cdBrIndex = index
     s.cdBrOffset = address - s.cdChunkOffsets[index]
@@ -1309,6 +1313,10 @@ let makeBrotliDecode = () => {
             s.maxDistance = s.maxBackwardDistance
           }
           if (s.distance > s.maxDistance) {
+            // Preserve the decoded distance code so the dictionary path can
+            // apply the RFC 7932 §4 ring buffer rule (update only when the
+            // distance code is non-zero).
+            s.distanceCode = distanceCode
             s.runningState = 9
             continue
           }

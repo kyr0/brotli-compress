@@ -1,13 +1,13 @@
 {
   "name": "brotli-compress",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "WASM based, asynchronous Brotli compression and decompression package that works in browsers and Node.js; CommonJS and ESM",
   "keywords": [
     "brotli",
     "compress",
     "decompress",
     "wasm",
-    "webassemly",
+    "webassembly",
     "async",
     "typescript",
     "browser",
@@ -17,8 +17,13 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsx ./build.ts",
-    "postbuild": "tsc",
+    "postbuild": "tsc && tsx ./build.types.ts",
+    "verify:package": "npm run build && tsx ./scripts/verify-package.ts",
+    "gate": "tsx ./scripts/release-gate/release-gate.ts",
+    "prepack": "npm run build",
     "deploy": "npm publish",
+    "prepublishOnly": "npm run gate",
+    "release": "npm run build && npm publish --ignore-scripts",
     "pretest": "npm run build",
     "test": "vitest run",
     "prebench": "npm run build",
@@ -30,27 +35,68 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./index.mjs",
-      "require": "./index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./index.cjs"
+      }
     },
     "./js": {
-      "types": "./dist/js.d.ts",
-      "import": "./js.mjs",
-      "require": "./js.cjs"
+      "import": {
+        "types": "./dist/js.d.mts",
+        "default": "./js.mjs"
+      },
+      "require": {
+        "types": "./dist/js.d.cts",
+        "default": "./js.cjs"
+      }
     },
     "./external": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/index.d.mts",
       "import": "./index.external.mjs"
     },
     "./brotli_wasm_bg.wasm": "./brotli_wasm_bg.wasm",
-    "./index.js": "./index.cjs",
-    "./index.mjs": "./index.mjs",
-    "./index.cjs": "./index.cjs",
-    "./js.js": "./js.cjs",
-    "./js.mjs": "./js.mjs",
-    "./js.cjs": "./js.cjs",
+    "./index.js": {
+      "types": "./dist/index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./index.mjs": {
+      "types": "./dist/index.d.mts",
+      "default": "./index.mjs"
+    },
+    "./index.cjs": {
+      "types": "./dist/index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./js.js": {
+      "types": "./dist/js.d.cts",
+      "default": "./js.cjs"
+    },
+    "./js.mjs": {
+      "types": "./dist/js.d.mts",
+      "default": "./js.mjs"
+    },
+    "./js.cjs": {
+      "types": "./dist/js.d.cts",
+      "default": "./js.cjs"
+    },
     "./package.json": "./package.json"
+  },
+  "files": [
+    "index.mjs",
+    "index.cjs",
+    "index.external.mjs",
+    "js.mjs",
+    "js.cjs",
+    "brotli_wasm_bg.wasm",
+    "dist",
+    "LICENSE-MIT"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
@@ -63,15 +109,14 @@
   },
   "homepage": "https://github.com/kyr0/brotli-compress#readme",
   "dependencies": {
-    "@types/node": "^26.1.1",
     "brotli-wasm-custom-dictionary": "^3.1.0"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "@vitest/browser": "^4.1.10",
     "@vitest/browser-playwright": "^4.1.10",
     "buffer": "^6.0.3",
     "esbuild": "^0.28.1",
-    "pkgroll": "^2.27.1",
     "playwright": "^1.61.1",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",

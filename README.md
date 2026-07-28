@@ -20,7 +20,8 @@ All in all, this package is the Brotli "fire and forget" solution that should
 work in all JavaScript environments, with all bundlers and ecosystems, including
 Vite, Rollup, Webpack, Gatsby and Next.js projects as well as Node.js.
 
-This library can yield stellar compression rates at byte-level. e.g. 322% in our unit test case:
+This library can yield stellar compression ratios at byte-level — e.g. output
+68.9% smaller than the input (a 3.22× reduction) in our unit test case:
 
 <img src="jest_results.png" />
 
@@ -129,8 +130,8 @@ const compressed = await compress(input, { wasmFileUrl: 'https://example.com/bro
 
 ## Usage of the pure JS variant
 
-If you need a small bundle size, can effort the slowdown and
-only need decompression, use the hard-written JavaScript decompressor:
+If you need a small bundle size, can afford the slowdown and
+only need decompression, use the handwritten JavaScript decompressor:
 
 ```ts
 // import size (uncompressed, but minified) / JS version / only decompress / slower: 152K
@@ -180,7 +181,9 @@ const compressed = await compress(Buffer.from('foobar'), { quality: 9 })
 ```
 
 A lower quality value makes the output bigger but improves compression time.
-In 99.9% of the cases, you don't want to change this value.
+Quality 11 gives the best ratio but is by far the slowest option; for large or
+latency-sensitive payloads, a value in the 5–9 range is usually a better
+trade-off.
 
 ### Custom dictionary
 
@@ -263,22 +266,50 @@ module has to be initialized once.
 
 ## Build
 
-    bun build
+    npm run build    # or: bun build
 
 ## Test
 
-    bun test
+    npm test         # or: bun test
+
+## Release parity gate
+
+To keep the [SECURITY.md](SECURITY.md) promise ("nothing is ever removed or
+behaviour changed"), every publish is gated. `npm run gate`
+([`scripts/release-gate/`](scripts/release-gate/release-gate.ts)):
+
+1. packs the upcoming release (`npm pack` — the same build that publish produces),
+2. downloads the latest published tarball from npm,
+3. compares the full published artifact set — flagging any removed import file,
+   `exports` subpath, ESM/CJS condition, or exported symbol, and
+4. re-runs the test suite against **both** installed tarballs and asserts
+   **byte-for-byte identical output** for every compress/decompress configuration
+   encoded in the tests (across `.`, `/js` and `/external`, in both ESM and CJS).
+
+Everything runs under `tmp/release-gate/` (gitignored); the human-readable report
+is written to `tmp/release-gate/gate-report.md`. `npm publish` is gated via the
+`prepublishOnly` hook, so an accidental behaviour change or removed export blocks
+the release.
+
+Publishing an **intentional** behaviour change (e.g. a correctness fix): bump the
+version, record it under "Documented behaviour changes" in SECURITY.md, then
+publish once with `npm run release` (which builds and bypasses the gate for this
+one acknowledged change). The gate then re-baselines against the newly published
+version and goes green again for subsequent releases.
 
 ## Licensing
 
-Most of the code of this library is licensed by Apache-2.0.
-The original `decompress` implementation is licensed by Google under MIT license (src/js.ts).
+Most of the code of this library is licensed under Apache-2.0 (see [LICENSE](LICENSE)).
+The pure-JS `decompress` implementation (`src/js.ts`, also shipped minified as
+`js.mjs`/`js.cjs`) is derived from Google's Brotli decoder and is licensed by
+Google under the MIT license (see [LICENSE-MIT](LICENSE-MIT)); the copyright
+notice is preserved in the minified artifacts.
 
-## Contibutors
+## Contributors
 
 Package and build configuration plus cross-library implementation, documentation and
 unit testing, as well as updating the WASM/JS binding has been done by Aron Homberg.
 
-`brotli-wasm` that ships with this package inline as been implemented by [Tim Perry](https://github.com/httptoolkit/brotli-wasm) and contributors.
+`brotli-wasm` that ships with this package inline was implemented by [Tim Perry](https://github.com/httptoolkit/brotli-wasm) and contributors.
 
 Direct binding WASM/JS and the respective code extraction idea has been implemented by [stefnotch](https://github.com/stefnotch/url-catpressor/blob/main/src/useCompression.ts)
