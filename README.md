@@ -1,5 +1,12 @@
 # brotli-compress
 
+[![npm version](https://img.shields.io/npm/v/brotli-compress.svg?logo=npm)](https://www.npmjs.com/package/brotli-compress)
+[![npm downloads](https://img.shields.io/npm/dm/brotli-compress.svg)](https://www.npmjs.com/package/brotli-compress)
+[![TypeScript definitions](https://img.shields.io/npm/types/brotli-compress.svg)](https://www.npmjs.com/package/brotli-compress)
+[![license](https://img.shields.io/npm/l/brotli-compress.svg)](https://github.com/kyr0/brotli-compress/blob/main/LICENSE)
+[![Socket Badge](https://badge.socket.dev/npm/package/brotli-compress/latest)](https://socket.dev/npm/package/brotli-compress)
+[![npm unpacked size](https://img.shields.io/npm/unpacked-size/brotli-compress.svg)](https://www.npmjs.com/package/brotli-compress)
+
 This package packages `brotli-wasm-custom-dictionary` (a `brotli-wasm` fork with
 custom dictionary support), minifies and inlines it, so that it works consistently
 in Node.js and Browser environments. This solves [several issues](https://github.com/rustwasm/wasm-pack/issues/1106) of using `brotli-wasm` directly.
